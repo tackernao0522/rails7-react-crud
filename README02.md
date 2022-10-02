@@ -117,3 +117,87 @@ end
 + 別のターミナルで `$ ./bin/webpacker-dev-server`を実行<br>
 
 + localhost:3000にアクセスしてみる<br>
+
+## 02. APIを構築する
+
++ `$ ./bin/rails g model Event event_type:string event_date:date title:text speaker:string host:string published:boolean`を実行<br>
+
++ `$ ./bin/rails db:migrate`を実行<br>
+
++ `$ mkdir db/seeds && touch $_/events.json`を実行<br>
+
++ `$ db/seeds/events.json`を編集<br>
+
+```json:events.json
+[
+  {
+    "event_type": "Symposium",
+    "event_date": "2022-07-14",
+    "title": "Ada Lovelace — The Making of a Computer Scientist",
+    "speaker": "Monica S. Lam, Yoky Matsuoka, Dorit Aharonov",
+    "host": "Ursula Martin",
+    "published": false
+  },
+  {
+    "event_type": "Colloquium",
+    "event_date": "2022-04-12",
+    "title": "Scholasticism in Medieval and Early Modern History",
+    "speaker": "Robin Fleming",
+    "host": "Henry Louis Gates Jr.",
+    "published": true
+  },
+  {
+    "event_type": "Symposium",
+    "event_date": "2022-03-30",
+    "title": "Charles II and the English Restoration",
+    "speaker": "Kate Williams, Patrick Morrah, Charles Spencer",
+    "host": "Lucy Worsley",
+    "published": true
+  },
+  {
+    "event_type": "Symposium",
+    "event_date": "2022-03-01",
+    "title": "Remembering the Titanic, One of the Greatest Ever Maritime Tragedies",
+    "speaker": "William Hazelgrove, Lauren Tarshis, Andrew Wilson",
+    "host": "Dan Snow",
+    "published": true
+  },
+  {
+    "event_type": "Symposium",
+    "event_date": "2022-02-07",
+    "title": "Symbolism in Portraits of Queen Elizabeth I",
+    "speaker": "David Starkey, Susan Doran, Alison Weir",
+    "host": "Suzannah Lipscomb",
+    "published": true
+  },
+  {
+    "event_type": "Colloquium",
+    "event_date": "2021-12-19",
+    "title": "A Brief History Of China's Dynasties",
+    "speaker": "Iris Chang",
+    "host": "Pamela Kyle Crossley",
+    "published": true
+  }
+]
+```
+
++ `db/seeds.rb`を編集<br>
+
+```rb:seeds.rb
+json = ActiveSupport::JSON.decode(File.read('db/seeds/events.json'))
+json.each do |record|
+  Event.create!(record)
+end
+```
+
++ `$ ./bin/rails db:seed`を実行<br>
+
++ `$ ./bin/rails c`を実行<br>
+
++ `下記の結果になればOK`<br>
+
+```:terminal
+>> Event.all.count
+  Event Count (1.3ms)  SELECT COUNT(*) FROM `events`
+=> 6
+```
