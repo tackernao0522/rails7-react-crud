@@ -100,3 +100,201 @@ module.exports = {
 + [eslint-plugin-react/function-component-definition.md at master · jsx-eslint/eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react/blob/master/docs/rules/function-component-definition.md) <br>
 
 + `$ ./node_modules/.bin/eslint app/javascript`を実行<br>
+
+## 06. イベントを表示する
+
++ `$ yarn add react-router-dom@6`を実行<br>
+
++ [React Router 6 Tutorial](https://www.robinwieruch.de/react-router/) <br>
+
++ `config/routes.rb`を編集<br>
+
+```rb:routes.rb
+Rails.application.routes.draw do
+  root to: redirect('/events')
+
+  get 'events', to: 'site#index'
+  get 'events/new', to: 'site#index'
+  get 'events/:id', to: 'site#index'
+  get 'events/:id/edit', to: 'site#index'
+
+  namespace :api do
+    resources :events, only: %i[index show create destroy update]
+  end
+end
+```
+
++ `app/javascript/application.js`を編集<br>
+
+```js:application.js
+/* eslint-disable no-undef */
+import React, { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
+import { BrowserRouter } from 'react-router-dom'; // 追加
+import App from './components/App';
+
+const container = document.getElementById('root');
+const root = createRoot(container);
+
+document.addEventListener('DOMContentLoaded', () => {
+  root.render(
+    <StrictMode>
+      <BrowserRouter> // 追加
+        <App />
+      </BrowserRouter> // 追加
+    </StrictMode>,
+  );
+});
+```
+
++ `app/javascript/components/App.js`を編集<br>
+
+```js:App.js
+import React from 'react';
+import { Route, Routes } from 'react-router-dom'; // 追加
+import Editor from './Editor';
+
+const App = () => (
+  // 編集
+  <Routes>
+    <Route path="events/*" element={<Editor />} />
+  </Routes>
+  // ここまで
+);
+
+export default App;
+```
+
++ [<Route> コンポーネント](https://reactrouterdotcom.fly.dev/docs/en/v6/components/routes) <br>
+
++ `$ touch app/javascript/components/Event.js`を実行<br>
+
++ `app/javascript/components/Editor.js`を編集<br>
+
+```js:Editor.js
+import React, { useState, useEffect } from 'react';
+import { Route, Routes } from 'react-router-dom';
+import Event from './Event'; // 追加
+import EventList from './EventList';
+import Header from './Header';
+
+const Editor = () => {
+  const [events, setEvents] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isError, setIsError] = useState(false);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // eslint-disable-next-line no-undef
+        const response = await window.fetch('/api/events');
+        if (!response.ok) throw Error(response.statusText);
+        const data = await response.json();
+        setEvents(data);
+      } catch (error) {
+        setIsError(true);
+        console.error(error);
+      }
+
+      setIsLoading(false);
+    };
+
+    fetchData();
+  }, []);
+
+  return (
+    <>
+      <Header />
+      {isError && <p>Something went wrong. Check the console.</p>}
+      // 編集
+      {isLoading ? (
+        <p>Loading...</p>
+      ) : (
+        <>
+          <EventList events={events} />
+
+          <Routes>
+            <Route path=":id" element={<Event events={events} />} />
+          </Routes>
+        </>
+      )}
+      // ここまで
+    </>
+  );
+};
+
+export default Editor;
+```
+
++ `app/javascript/components/Event.js`を編集<br>
+
+```js:Event.js
+/* eslint-disable react/react-in-jsx-scope */
+import { useParams } from 'react-router-dom';
+import PropTypes from 'prop-types';
+
+const Event = ({ events }) => {
+  const { id } = useParams();
+  const event = events.find((e) => e.id === Number(id));
+
+  return (
+    <>
+      <h2>
+        {event.event_date}
+        {' _ '}
+        {event.event_type}
+      </h2>
+      <ul>
+        <li>
+          <strong>Type:</strong>
+          {' '}
+          {event.event_type}
+        </li>
+        <li>
+          <strong>Date:</strong>
+          {' '}
+          {event.event_date}
+        </li>
+        <li>
+          <strong>Title:</strong>
+          {' '}
+          {event.title}
+        </li>
+        <li>
+          <strong>Speaker:</strong>
+          {' '}
+          {event.speaker}
+        </li>
+        <li>
+          <strong>Host:</strong>
+          {' '}
+          {event.host}
+        </li>
+        <li>
+          <strong>Published:</strong>
+          {' '}
+          {event.published ? 'yes' : 'no'}
+        </li>
+      </ul>
+    </>
+  );
+};
+
+Event.propTypes = {
+  events: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.number.isRequired,
+      event_type: PropTypes.string.isRequired,
+      event_date: PropTypes.string.isRequired,
+      title: PropTypes.string.isRequired,
+      speaker: PropTypes.string.isRequired,
+      host: PropTypes.string.isRequired,
+      published: PropTypes.bool.isRequired,
+    }),
+  ).isRequired,
+};
+
+export default Event;
+```
+
++ [useParamsフック](https://reactrouterdotcom.fly.dev/docs/en/v6/hooks/use-params) <br>

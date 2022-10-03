@@ -1,5 +1,9 @@
                                   Prefix Verb   URI Pattern                                                                                       Controller#Action
-                                    root GET    /                                                                                                 site#index
+                                    root GET    /                                                                                                 redirect(301, /events)
+                                  events GET    /events(.:format)                                                                                 site#index
+                              events_new GET    /events/new(.:format)                                                                             site#index
+                                         GET    /events/:id(.:format)                                                                             site#index
+                                         GET    /events/:id/edit(.:format)                                                                        site#index
                               api_events GET    /api/events(.:format)                                                                             api/events#index
                                          POST   /api/events(.:format)                                                                             api/events#create
                                api_event GET    /api/events/:id(.:format)                                                                         api/events#show

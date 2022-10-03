@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { Route, Routes } from 'react-router-dom';
+import Event from './Event';
 import EventList from './EventList';
 import Header from './Header';
 
@@ -30,8 +32,17 @@ const Editor = () => {
     <>
       <Header />
       {isError && <p>Something went wrong. Check the console.</p>}
+      {isLoading ? (
+        <p>Loading...</p>
+      ) : (
+        <>
+          <EventList events={events} />
 
-      {isLoading ? <p>Loading...</p> : <EventList events={events} />}
+          <Routes>
+            <Route path=":id" element={<Event events={events} />} />
+          </Routes>
+        </>
+      )}
     </>
   );
 };
