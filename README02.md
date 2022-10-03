@@ -369,3 +369,168 @@ end
     }
 ]
 ```
+
+## 04. イベントマネージャをscaffoldで作成する
+
+### イベントをフェッチする
+
++ `$ touch app/javascript/components/{Editor.js,Header.js,EventList.js}`を実行<br>
+
+[prop-types](https://www.npmjs.com/package/prop-types) <br>
+
++ `$ yarn add prop-types`を実行(Shakapackerの場合はyarnである)<br>
+
++ `app/javascript/application.js`を編集<br>
+
+```js:application.js
+/* eslint no-console:0 */
+// This file is automatically compiled by Webpack, along with any other files
+// present in this directory. You're encouraged to place your actual application logic in
+// a relevant structure within app/javascript and only use these pack files to reference
+// that code so it'll be compiled.
+//
+// To reference this file, add <%= javascript_pack_tag 'application' %> to the appropriate
+// layout file, like app/views/layouts/application.html.erb
+
+// Uncomment to copy all static images under ./images to the output folder and reference
+// them with the image_pack_tag helper in views (e.g <%= image_pack_tag 'rails.png' %>)
+// or the `imagePath` JavaScript helper below.
+//
+// const images = require.context('./images', true)
+// const imagePath = (name) => images(name, true)
+
+import React, { StrictMode } from 'react' // 編集
+import { createRoot } from 'react-dom/client'
+import { App } from './components/App' // 編集
+
+const container = document.getElementById('root')
+const root = createRoot(container)
+
+document.addEventListener('DOMContentLoaded', () => {
+  root.render(
+    // 編集
+    <StrictMode>
+      <App />
+    </StrictMode>,
+    // ここまで
+  )
+})
+```
+
++ [strict モード - React](https://ja.reactjs.org/docs/strict-mode.html) <br>
+
+## Reactの[フック](https://ja.reactjs.org/docs/hooks-overview.html)でデータをフェッチする
+
++ `app/javascript/components/App.js`を編集<br>
+
+```js:App.js
+import React from 'react';
+import { Editor } from './Editor';
+
+export const App = () => {
+  return (
+    <Editor />
+  )
+}
+```
+
++ `app/javascript/components/Editor.js`を編集<br>
+
+```js:Editor.js
+import React, { useState, useEffect } from 'react';
+import { EventList } from './EventList';
+import { Header } from './Header';
+
+export const Editor = () => {
+  const [events, setEvents] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isError, setIsError] = useState(false);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await window.fetch('/api/events');
+        if (!response.ok) throw Error(response.statusText);
+        const data = await response.json();
+        setEvents(data);
+      } catch (error) {
+        setIsError(true);
+        console.error(error);
+      }
+
+      setIsLoading(false);
+    };
+
+    fetchData();
+  }, []);
+
+  return (
+    <>
+      <Header />
+      {isError && <p>Something went wrong. Check the console.</p>}
+
+      {isLoading ? <p>Loading...</p> : <EventList events={events} />}
+    </>
+  );
+};
+```
+
+[Fetch API](https://developer.mozilla.org/ja/docs/Web/API/Fetch_API) <br>
+
+[Handling Failed HTTP Responses With fetch()](https://www.tjvantoll.com/2015/09/13/fetch-and-errors/) <br>
+
++ `app/javascript/components/Header.js`を編集<br>
+
+```js:Header.js
+import React from 'react';
+
+export const Header = () => {
+  return (
+    <header>
+      <h1>Event Manager</h1>
+    </header>
+  )
+}
+```
+
++ `app/javascript/components/EventList.js`を編集<br>
+
+```js:EventList.js
+import React from 'react';
+import PropTypes from 'prop-types';
+
+export const EventList = ({ events }) => {
+  const renderEvents = (eventArray) => {
+    eventArray.sort((a, b) => new Date(b.event_date) - new Date(a.event_date));
+
+    return eventArray.map((event) => (
+      <li key={event.id}>
+        {event.event_date}
+        {' - '}
+        {event.event_type}
+      </li>
+    ));
+  };
+
+  return (
+    <section>
+      <h2>Events</h2>
+      <ul>{renderEvents(events)}</ul>
+    </section>
+  );
+};
+
+EventList.propTypes = {
+  events: PropTypes.arrayOf(PropTypes.shape({
+    id: PropTypes.number,
+    event_type: PropTypes.string,
+    event_date: PropTypes.string,
+    title: PropTypes.string,
+    speaker: PropTypes.string,
+    host: PropTypes.string,
+    published: PropTypes.bool,
+  })).isRequired,
+};
+```
+
++ localhost:3000にアクセスしてみる <br>
