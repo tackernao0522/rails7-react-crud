@@ -1,16 +1,24 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>EventManager</title>
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <%= csrf_meta_tags %>
-    <%= csp_meta_tag %>
 
-    <%= stylesheet_link_tag "application" %>
-    <%= javascript_pack_tag "application" %>
-  </head>
+<head>
+  <title>EventManager</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <%= csrf_meta_tags %>
+  <%= csp_meta_tag %>
 
-  <body>
-    <%= yield %>
-  </body>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400;500;700&family=Roboto:ital,wght@0,300;0,400;0,700;1,400&display=swap"
+    rel="stylesheet">
+
+  <%= stylesheet_pack_tag "application" %>
+  <%= javascript_pack_tag "application" %>
+</head>
+
+<body>
+  <%= yield %>
+</body>
+
 </html>
