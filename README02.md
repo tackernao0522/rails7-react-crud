@@ -1,5 +1,7 @@
 # Railsアプリを新規作成する(Shakapackerの場合)
 
+## [Rails7とReactによるCRUDアプリ作成チュートリアル](https://techracho.bpsinc.jp/hachi8833/2022_05_26/118202) <br>
+
 + `$ rails _7.0.2.3_ new event-manager --database=mysql --skip-javascript`を実行<br>
 
 + `$ bundle add shakapacker --version "6.2.1" --strict`を実行<br>
@@ -200,4 +202,170 @@ end
 >> Event.all.count
   Event Count (1.3ms)  SELECT COUNT(*) FROM `events`
 => 6
+```
+
+## 03 コントローラ
+
++ `mkdir app/controllers/api && touch $_/events_controller.rb`を実行<br>
+
++ `app/controllers/api/events_controller.rb`を編集<br>
+
+```rb:events_controller.rb
+class Api::EventsController < ApplicationController
+  before_action :set_event, only: %i[show update destroy]
+
+  def index
+    @events = Event.all
+    render json: @events
+  end
+
+  def show
+    render json: @event
+  end
+
+  def create
+    @event = Event.new(event_params)
+
+    if @event.save
+      render json: @event, status: :created
+    else
+      render json: @event.errors, status: :unprocessable_entity
+    end
+  end
+
+  def update
+    if @event.update(event_params)
+      render json: @event, status: :ok
+    else
+      render json: @event.errors, status: :upprocessable_entity
+    end
+  end
+
+  def destroy
+    @event.destroy
+  end
+
+  private
+
+  def event_params
+    params.require(:event).permit(
+      :id,
+      :event_type,
+      :event_date,
+      :title,
+      :speaker,
+      :host,
+      :published,
+      :created_at,
+      :updated_at
+    )
+  end
+end
+```
+
++ [How to Create a Rails Backend API | by Jackson Chen | Geek Culture | Medium](https://medium.com/geekculture/how-to-create-a-rails-backend-api-871fcddd6e20) <br>
+
++ [クロスサイトリクエストフォージェリ](https://railsguides.jp/security.html?version=7.0#%E3%82%AF%E3%83%AD%E3%82%B9%E3%82%B5%E3%82%A4%E3%83%88%E3%83%AA%E3%82%AF%E3%82%A8%E3%82%B9%E3%83%88%E3%83%95%E3%82%A9%E3%83%BC%E3%82%B8%E3%82%A7%E3%83%AA%EF%BC%88csrf%EF%BC%89) <br>
+
++ `app/controllers/application_controller.rb`を編集<br>
+
+```rb:application_controller.rb
+class ApplicationController < ActionController::Base
+  protect_from_forgery with: :null_session
+end
+```
+
++ [Understanding Rails’ Forgery Protection Strategies](https://marcgg.com/blog/2016/08/22/csrf-rails/) <br>
+
++ [A Deep Dive into CSRF Protection in Rails](https://medium.com/rubyinside/a-deep-dive-into-csrf-protection-in-rails-19fa0a42c0ef) <br>
+
++ [Rails CSRF protection for SPA](https://blog.eq8.eu/article/rails-api-authentication-with-spa-csrf-tokens.html) <br>
+
++ [Configuring Rails as a JSON API](Configuring Rails as a JSON API) <br>
+
+## ルーティング
+
++ `config/routes.rb`を編集<br>
+
+```rb:routes.rb
+Rails.application.routes.draw do
+  root to: 'site#index'
+
+  namespace :api do
+    resources :events, only: %i[index show create destroy update]
+  end
+end
+```
+
++ Postmanによる確認 (http://localhost:3000/api/events)<br>
+
+```:json
+[
+    {
+        "id": 1,
+        "event_type": "Symposium",
+        "event_date": "2022-07-14",
+        "title": "Ada Lovelace — The Making of a Computer Scientist",
+        "speaker": "Monica S. Lam, Yoky Matsuoka, Dorit Aharonov",
+        "host": "Ursula Martin",
+        "published": false,
+        "created_at": "2022-10-02T16:11:41.585Z",
+        "updated_at": "2022-10-02T16:11:41.585Z"
+    },
+    {
+        "id": 2,
+        "event_type": "Colloquium",
+        "event_date": "2022-04-12",
+        "title": "Scholasticism in Medieval and Early Modern History",
+        "speaker": "Robin Fleming",
+        "host": "Henry Louis Gates Jr.",
+        "published": true,
+        "created_at": "2022-10-02T16:11:41.593Z",
+        "updated_at": "2022-10-02T16:11:41.593Z"
+    },
+    {
+        "id": 3,
+        "event_type": "Symposium",
+        "event_date": "2022-03-30",
+        "title": "Charles II and the English Restoration",
+        "speaker": "Kate Williams, Patrick Morrah, Charles Spencer",
+        "host": "Lucy Worsley",
+        "published": true,
+        "created_at": "2022-10-02T16:11:41.599Z",
+        "updated_at": "2022-10-02T16:11:41.599Z"
+    },
+    {
+        "id": 4,
+        "event_type": "Symposium",
+        "event_date": "2022-03-01",
+        "title": "Remembering the Titanic, One of the Greatest Ever Maritime Tragedies",
+        "speaker": "William Hazelgrove, Lauren Tarshis, Andrew Wilson",
+        "host": "Dan Snow",
+        "published": true,
+        "created_at": "2022-10-02T16:11:41.605Z",
+        "updated_at": "2022-10-02T16:11:41.605Z"
+    },
+    {
+        "id": 5,
+        "event_type": "Symposium",
+        "event_date": "2022-02-07",
+        "title": "Symbolism in Portraits of Queen Elizabeth I",
+        "speaker": "David Starkey, Susan Doran, Alison Weir",
+        "host": "Suzannah Lipscomb",
+        "published": true,
+        "created_at": "2022-10-02T16:11:41.611Z",
+        "updated_at": "2022-10-02T16:11:41.611Z"
+    },
+    {
+        "id": 6,
+        "event_type": "Colloquium",
+        "event_date": "2021-12-19",
+        "title": "A Brief History Of China's Dynasties",
+        "speaker": "Iris Chang",
+        "host": "Pamela Kyle Crossley",
+        "published": true,
+        "created_at": "2022-10-02T16:11:41.617Z",
+        "updated_at": "2022-10-02T16:11:41.617Z"
+    }
+]
 ```
