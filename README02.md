@@ -281,7 +281,7 @@ end
 
 + [Rails CSRF protection for SPA](https://blog.eq8.eu/article/rails-api-authentication-with-spa-csrf-tokens.html) <br>
 
-+ [Configuring Rails as a JSON API](Configuring Rails as a JSON API) <br>
++ [Configuring Rails as a JSON API](https://thinkster.io/tutorials/rails-json-api/configuring-rails-as-a-json-api) <br>
 
 ## ルーティング
 
