@@ -229,7 +229,7 @@ export default Editor;
 + `app/javascript/components/Event.js`を編集<br>
 
 ```js:Event.js
-/* eslint-disable react/react-in-jsx-scope */
+import React from 'react'; // 必須
 import { useParams } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
@@ -298,3 +298,54 @@ export default Event;
 ```
 
 + [useParamsフック](https://reactrouterdotcom.fly.dev/docs/en/v6/hooks/use-params) <br>
+
+## 05. イベントをクリッカブルにする
+
++ `app/javascript/components/EventList.js`を編集<br>
+
+```js:EventList.js
+import React from 'react';
+import PropTypes from 'prop-types';
+import { Link } from 'react-router-dom';
+
+const EventList = ({ events }) => {
+  const renderEvents = (eventArray) => {
+    eventArray.sort((a, b) => new Date(b.event_date) - new Date(a.event_date));
+
+    return eventArray.map((event) => (
+      <li key={event.id}>
+        <Link to={`/events/${event.id}`}>
+          {event.event_date}
+          {' - '}
+          {event.event_type}
+        </Link>
+      </li>
+    ));
+  };
+
+  return (
+    <section>
+      <h2>Events</h2>
+      <ul>{renderEvents(events)}</ul>
+    </section>
+  );
+};
+
+EventList.propTypes = {
+  events: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.number,
+      event_type: PropTypes.string,
+      event_date: PropTypes.string,
+      title: PropTypes.string,
+      speaker: PropTypes.string,
+      host: PropTypes.string,
+      published: PropTypes.bool,
+    }),
+  ).isRequired,
+};
+
+export default EventList;
+```
+
++ loacalhost:3000 から試してみる<br>

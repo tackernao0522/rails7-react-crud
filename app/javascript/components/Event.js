@@ -1,4 +1,4 @@
-/* eslint-disable react/react-in-jsx-scope */
+import React from 'react';
 import { useParams } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
@@ -10,7 +10,7 @@ const Event = ({ events }) => {
     <>
       <h2>
         {event.event_date}
-        {' _ '}
+        {' - '}
         {event.event_type}
       </h2>
       <ul>
