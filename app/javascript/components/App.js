@@ -1,6 +1,6 @@
-import React from 'react'
-import { Editor } from './Editor'
+import React from 'react';
+import Editor from './Editor';
 
-export const App = () => {
-  return <Editor />
-}
+const App = () => <Editor />;
+
+export default App;

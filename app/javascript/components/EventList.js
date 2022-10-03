@@ -1,9 +1,9 @@
-import React from 'react'
-import PropTypes from 'prop-types'
+import React from 'react';
+import PropTypes from 'prop-types';
 
-export const EventList = ({ events }) => {
+const EventList = ({ events }) => {
   const renderEvents = (eventArray) => {
-    eventArray.sort((a, b) => new Date(b.event_date) - new Date(a.event_date))
+    eventArray.sort((a, b) => new Date(b.event_date) - new Date(a.event_date));
 
     return eventArray.map((event) => (
       <li key={event.id}>
@@ -11,16 +11,16 @@ export const EventList = ({ events }) => {
         {' - '}
         {event.event_type}
       </li>
-    ))
-  }
+    ));
+  };
 
   return (
     <section>
       <h2>Events</h2>
       <ul>{renderEvents(events)}</ul>
     </section>
-  )
-}
+  );
+};
 
 EventList.propTypes = {
   events: PropTypes.arrayOf(
@@ -34,4 +34,6 @@ EventList.propTypes = {
       published: PropTypes.bool,
     }),
   ).isRequired,
-}
+};
+
+export default EventList;
