@@ -76,7 +76,7 @@ const Editor = () => {
   const updateEvent = async (updatedEvent) => {
     try {
       // eslint-disable-next-line no-undef
-      const response = await window.fetch(`/api/events/${updateEvent.id}`, {
+      const response = await window.fetch(`/api/events/${updatedEvent.id}`, {
         method: 'PUT',
         body: JSON.stringify(updatedEvent),
         headers: {
@@ -102,27 +102,25 @@ const Editor = () => {
   return (
     <>
       <Header />
-      <div className="grid">
-        {isLoading ? (
-          <p className="loading">Loading...</p>
-        ) : (
-          <>
-            <EventList events={events} />
+      {isLoading ? (
+        <p className="loading">Loading...</p>
+      ) : (
+        <div className="grid">
+          <EventList events={events} />
 
-            <Routes>
-              <Route
-                path=":id"
-                element={<Event events={events} onDelete={deleteEvent} />}
-              />
-              <Route
-                path=":id"
-                element={<Event events={events} onSave={updateEvent} />}
-              />
-              <Route path="new" element={<EventForm onSave={addEvent} />} />
-            </Routes>
-          </>
-        )}
-      </div>
+          <Routes>
+            <Route
+              path=":id"
+              element={<Event events={events} onDelete={deleteEvent} />}
+            />
+            <Route
+              path=":id/edit"
+              element={<EventForm events={events} onSave={updateEvent} />}
+            />
+            <Route path="new" element={<EventForm onSave={addEvent} />} />
+          </Routes>
+        </div>
+      )}
     </>
   );
 };

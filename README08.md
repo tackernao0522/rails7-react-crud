@@ -1,3 +1,8 @@
+## 17. フォームにさらに手を加える
+
++ `app/javascript/components/EventForm.jsx`を編集<br>
+
+```js:EventForm.jsx
 import React, {
   useCallback, useEffect, useRef, useState,
 } from 'react';
@@ -92,12 +97,14 @@ const EventForm = ({ events, onSave }) => {
     }
   };
 
+  // 追加
   const cancelURL = event.id ? `events/${event.id}` : '/events';
   const title = event.id ? `${event.event_date} - ${event.event_type}` : 'New Event';
+  // ここまで
 
   return (
     <section>
-      <h2>{title}</h2>
+      <h2>{title}</h2> // 編集
       {renderErrors()}
 
       <form className="eventForm" onSubmit={handleSubmit}>
@@ -160,7 +167,7 @@ const EventForm = ({ events, onSave }) => {
               id="host"
               name="host"
               onChange={handleInputChange}
-              value={event.host}
+              value={event.host} // 追加
             />
           </label>
         </div>
@@ -178,7 +185,7 @@ const EventForm = ({ events, onSave }) => {
         </div>
         <div className="form-actions">
           <button type="submit">Save</button>
-          <Link to={cancelURL}>Cancel</Link>
+          <Link to={cancelURL}>Cancel</Link> // 追加
         </div>
       </form>
     </section>
@@ -204,3 +211,71 @@ EventForm.propTypes = {
 EventForm.defaultProps = {
   events: [],
 };
+```
+
++ `app/javascript/helpers/helpers.js`を編集<br>
+
+```js:helper.js
+import { error } from './notifications';
+
+export const isEmptyObject = (obj) => Object.keys(obj).length === 0;
+
+const isValidDate = (dateObj) => !Number.isNaN(Date.parse(dateObj));
+
+export const validateEvent = (event) => {
+  const errors = {};
+
+  if (event.event_type === '') {
+    errors.event_type = 'You maut enter an event type';
+  }
+  if (event.event_date === '') {
+    errors.event_date = 'You maut enter an event date';
+  }
+  // 追加
+  if (!isValidDate(event.event_date)) {
+    errors.event_date = 'You must enter a valid date';
+  }
+  // ここまで
+  if (event.title === '') {
+    errors.title = 'You maut enter an title';
+  }
+  if (event.speaker === '') {
+    errors.speaker = 'You maut enter an event speaker';
+  }
+  if (event.host === '') {
+    errors.host = 'You maut enter an host';
+  }
+
+  return errors;
+};
+
+export const formatDate = (d) => {
+  const YYYY = d.getFullYear();
+  const MM = `0${d.getMonth() + 1}`.slice(-2);
+  const DD = `0${d.getDate()}`.slice(-2);
+
+  return `${YYYY}-${MM}-${DD}`;
+};
+
+export const handleAjaxError = (err) => {
+  error('Something went wrong');
+  console.error(err);
+};
+```
+
++ `app/javascript/components/Header.js`を編集<br>
+
+```js:Header.js
+import React from 'react';
+import { Link } from 'react-router-dom'; // 追加
+
+const Header = () => (
+  <header>
+    <Link to="/events"> // 追加
+      <h1>Event Manager</h1>
+    </Link> // 追加
+  </header>
+);
+
+export default Header;
+```
