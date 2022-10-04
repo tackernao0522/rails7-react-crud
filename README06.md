@@ -1,10 +1,101 @@
+## 13. イベントを保存する
+
++ `app/javascript/components/Editor.js`を編集<br>
+
+```js:Editor.js
+import React, { useState, useEffect } from 'react';
+import { Route, Routes, useNavigate } from 'react-router-dom'; // 編集
+import Event from './Event';
+import EventForm from './EventForm';
+import EventList from './EventList';
+import Header from './Header';
+
+const Editor = () => {
+  const [events, setEvents] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isError, setIsError] = useState(false);
+  const navigate = useNavigate(); // 追加
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // eslint-disable-next-line no-undef
+        const response = await window.fetch('/api/events');
+        if (!response.ok) throw Error(response.statusText);
+        const data = await response.json();
+        setEvents(data);
+      } catch (error) {
+        setIsError(true);
+        console.error(error);
+      }
+
+      setIsLoading(false);
+    };
+
+    fetchData();
+  }, []);
+
+  // 追加
+  const addEvent = async (newEvent) => {
+    try {
+      // eslint-disable-next-line no-undef
+      const response = await window.fetch('/api/events', {
+        method: 'POST',
+        body: JSON.stringify(newEvent),
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+      });
+      if (!response.ok) throw Error(response.statusText);
+
+      const savedEvent = await response.json();
+      const newEvents = [...events, savedEvent];
+      setEvents(newEvents);
+      // eslint-disable-next-line no-undef
+      window.alert('Event Added!');
+      navigate(`/events/${savedEvent.id}`);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  // ここまで
+
+  return (
+    <>
+      <Header />
+      <div className="grid">
+        {isError && <p>Something went wrong. Check the console.</p>}
+        {isLoading ? (
+          <p className="loading">Loading...</p>
+        ) : (
+          <>
+            <EventList events={events} />
+
+            <Routes>
+              <Route path="new" element={<EventForm onSave={addEvent} />} /> // 編集
+              <Route path=":id" element={<Event events={events} />} />
+            </Routes>
+          </>
+        )}
+      </div>
+    </>
+  );
+};
+
+export default Editor;
+```
+
++ `app/javascript/components/EventForm.jsx`を編集<br>
+
+```jsx:EventForm.jsx
 import React, { useEffect, useRef, useState } from 'react';
 import Pikaday from 'pikaday';
-import PropTypes from 'prop-types';
+import PropTypes from 'prop-types'; // 追加
 import { isEmptyObject, validateEvent, formatDate } from '../helpers/helpers';
 import 'pikaday/css/pikaday.css';
 
-const EventForm = ({ onSave }) => {
+const EventForm = ({ onSave }) => { // 編集
   const [event, setEvent] = useState({
     event_type: '',
     event_date: '',
@@ -72,7 +163,7 @@ const EventForm = ({ onSave }) => {
     if (!isEmptyObject(errors)) {
       setFormErrors(errors);
     } else {
-      onSave(event);
+      onSave(event); // 編集
     }
   };
 
@@ -158,6 +249,11 @@ const EventForm = ({ onSave }) => {
 };
 export default EventForm;
 
+// 追加
 EventForm.propTypes = {
   onSave: PropTypes.func.isRequired,
 };
+// ここまで
+```
+
++ イベントが保存されるかどうか確認する<br>
