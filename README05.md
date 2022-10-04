@@ -1,5 +1,42 @@
+## 11. ヘルパー関数を作成する
+
++ `$ mkdir app/javascript/helpers && touch $_/helpers.js`を実行<br>
+
++ `app/javascript/helpers/helpers.js`を編集<br>
+
+(EventForm.jsx) から下記コードをカットしてペーストする<br>
+
+```js:helpers.js
+export const isEmptyObject = (obj) => Object.keys(obj).length === 0; // 上に移動 exportを追記
+
+export const validateEvent = (event) => { // 編集 eventとexportを追記
+  const errors = {};
+
+  if (event.event_type === '') {
+    errors.event_type = 'You maut enter an event type';
+  }
+  if (event.event_date === '') {
+    errors.event_date = 'You maut enter an event date';
+  }
+  if (event.title === '') {
+    errors.title = 'You maut enter an title';
+  }
+  if (event.speaker === '') {
+    errors.speaker = 'You maut enter an event speaker';
+  }
+  if (event.host === '') {
+    errors.host = 'You maut enter an host';
+  }
+
+  return errors;
+};
+```
+
++ `app/javascript/components/EventForm.jsx`を編集<br>
+
+```jsx:EventForm.jsx
 import React, { useState } from 'react';
-import { isEmptyObject, validateEvent } from '../helpers/helpers';
+import { isEmptyObject, validateEvent } from '../helpers/helpers'; // 追加
 
 const EventForm = () => {
   const [event, setEvent] = useState({
@@ -129,3 +166,6 @@ const EventForm = () => {
   );
 };
 export default EventForm;
+```
+
++ http://localhost:3000/events/new にアクセスしてエラー出るか確認してみる<br>
