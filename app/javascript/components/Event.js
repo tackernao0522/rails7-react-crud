@@ -26,13 +26,6 @@ const Event = ({ events, onDelete }) => {
           <strong>Type:</strong>
           {' '}
           {event.event_type}
-          <button
-            className="delete"
-            type="button"
-            onClick={() => onDelete(event.id)}
-          >
-            Delete
-          </button>
         </li>
         <li>
           <strong>Date:</strong>

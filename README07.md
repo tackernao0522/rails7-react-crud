@@ -359,13 +359,6 @@ const Event = ({ events, onDelete }) => {
           <strong>Type:</strong>
           {' '}
           {event.event_type}
-          <button
-            className="delete"
-            type="button"
-            onClick={() => onDelete(event.id)}
-          >
-            Delete
-          </button>
         </li>
         <li>
           <strong>Date:</strong>
@@ -497,7 +490,7 @@ const Editor = () => {
   const updateEvent = async (updatedEvent) => {
     try {
       // eslint-disable-next-line no-undef
-      const response = await window.fetch(`/api/events/${updateEvent.id}`, {
+      const response = await window.fetch(`/api/events/${updatedEvent.id}`, {
         method: 'PUT',
         body: JSON.stringify(updatedEvent),
         headers: {
@@ -538,8 +531,8 @@ const Editor = () => {
                 element={<Event events={events} onDelete={deleteEvent} />}
               />
               <Route
-                path=":id"
-                element={<Event events={events} onSave={updateEvent} />}
+                path=":id/edit"
+                element={<EventForm events={events} onSave={updateEvent} />}
               />
               <Route path="new" element={<EventForm onSave={addEvent} />} />
               // ここまで
