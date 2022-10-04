@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Route, Routes, useNavigate } from 'react-router-dom';
+import { handleAjaxError } from '../helpers/helpers';
+import { success } from '../helpers/notifications';
 import Event from './Event';
 import EventForm from './EventForm';
 import EventList from './EventList';
@@ -8,7 +10,6 @@ import Header from './Header';
 const Editor = () => {
   const [events, setEvents] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isError, setIsError] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -20,8 +21,7 @@ const Editor = () => {
         const data = await response.json();
         setEvents(data);
       } catch (error) {
-        setIsError(true);
-        console.error(error);
+        handleAjaxError(error);
       }
 
       setIsLoading(false);
@@ -46,11 +46,10 @@ const Editor = () => {
       const savedEvent = await response.json();
       const newEvents = [...events, savedEvent];
       setEvents(newEvents);
-      // eslint-disable-next-line no-undef
-      window.alert('Event Added!');
+      success('Event Added!');
       navigate(`/events/${savedEvent.id}`);
     } catch (error) {
-      console.log(error);
+      handleAjaxError(error);
     }
   };
 
@@ -64,15 +63,12 @@ const Editor = () => {
         const response = await window.fetch(`/api/events/${eventId}`, {
           method: 'DELETE',
         });
-
         if (!response.ok) throw Error(response.statusText);
-
-        // eslint-disable-next-line no-undef
-        window.alert('Event Deleted!');
+        success('Event Deleted!');
         navigate('/events');
         setEvents(events.filter((event) => event.id !== eventId));
       } catch (error) {
-        console.log(error);
+        handleAjaxError(error);
       }
     }
   };
@@ -81,7 +77,6 @@ const Editor = () => {
     <>
       <Header />
       <div className="grid">
-        {isError && <p>Something went wrong. Check the console.</p>}
         {isLoading ? (
           <p className="loading">Loading...</p>
         ) : (
