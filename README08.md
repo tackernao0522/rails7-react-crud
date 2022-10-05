@@ -279,3 +279,274 @@ const Header = () => (
 
 export default Header;
 ```
+
+## 18. 絞り込み機能を追加
+
++ `app/javascript/components/EventList.js`を編集<br>
+
+```js:EventList.js
+import React from 'react';
+import PropTypes from 'prop-types';
+import { Link, NavLink } from 'react-router-dom';
+
+const EventList = ({ events }) => {
+  const renderEvents = (eventArray) => {
+    eventArray.sort((a, b) => new Date(b.event_date) - new Date(a.event_date));
+
+    return eventArray.map((event) => (
+      <li key={event.id}>
+        <NavLink to={`/events/${event.id}`}>
+          {event.event_date}
+          {' - '}
+          {event.event_type}
+        </NavLink>
+      </li>
+    ));
+  };
+
+  return (
+    <section className="eventList">
+      <h2>
+        Events
+        <Link to="/events/new">New Event</Link>
+      </h2>
+
+      // 追加
+      <input
+        className="search"
+        placeholder="Search"
+        type="text"
+        ref={searchInput}
+        onKeyUp={updateSearchTerm}
+      />
+      // ここまで
+
+      <ul>{renderEvents(events)}</ul>
+    </section>
+  );
+};
+
+EventList.propTypes = {
+  events: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.number,
+      event_type: PropTypes.string,
+      event_date: PropTypes.string,
+      title: PropTypes.string,
+      speaker: PropTypes.string,
+      host: PropTypes.string,
+      published: PropTypes.bool,
+    }),
+  ).isRequired,
+};
+
+export default EventList;
+```
+
++ `app/javascript/components/EventList.js`を編集<br>
+
+```js:EventList.js
+import React, { useRef, useState } from 'react';
+import PropTypes from 'prop-types';
+import { Link, NavLink } from 'react-router-dom';
+
+const EventList = ({ events }) => {
+  // 追加
+  const [searchTerm, setSerarchTerm] = useState('');
+  const searchInput = useRef(null);
+
+  const updateSearchTerm = () => {
+    setSerarchTerm(searchInput.current.value);
+  };
+  // ここまで
+
+  const renderEvents = (eventArray) => {
+    eventArray.sort((a, b) => new Date(b.event_date) - new Date(a.event_date));
+
+    return eventArray.map((event) => (
+      <li key={event.id}>
+        <NavLink to={`/events/${event.id}`}>
+          {event.event_date}
+          {' - '}
+          {event.event_type}
+        </NavLink>
+      </li>
+    ));
+  };
+
+  return (
+    <section className="eventList">
+      <h2>
+        Events
+        <Link to="/events/new">New Event</Link>
+      </h2>
+
+      <input
+        className="search"
+        placeholder="Search"
+        type="text"
+        ref={searchInput}
+        onKeyUp={updateSearchTerm}
+      />
+      <ul>{renderEvents(events)}</ul>
+    </section>
+  );
+};
+
+EventList.propTypes = {
+  events: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.number,
+      event_type: PropTypes.string,
+      event_date: PropTypes.string,
+      title: PropTypes.string,
+      speaker: PropTypes.string,
+      host: PropTypes.string,
+      published: PropTypes.bool,
+    }),
+  ).isRequired,
+};
+
+export default EventList;
+```
+
++ `app/javascript/components/EventList.js`を編集<br>
+
+```js:EventList.js
+import React, { useRef, useState } from 'react';
+import PropTypes from 'prop-types';
+import { Link, NavLink } from 'react-router-dom';
+
+const EventList = ({ events }) => {
+  const [searchTerm, setSerarchTerm] = useState('');
+  const searchInput = useRef(null);
+
+  const updateSearchTerm = () => {
+    setSerarchTerm(searchInput.current.value);
+  };
+
+  // 編集
+  const renderEvents = (eventArray) => eventArray
+    .filter((el) => matchSearchTerm(el))
+    .sort((a, b) => new Date(b.event_date) - new Date(a.event_date))
+    .map((event) => (
+      <li key={event.id}>
+        <NavLink to={`/events/${event.id}`}>
+          {event.event_date}
+          {' - '}
+          {event.event_type}
+        </NavLink>
+      </li>
+    ));
+  // ここまで
+
+  return (
+    <section className="eventList">
+      <h2>
+        Events
+        <Link to="/events/new">New Event</Link>
+      </h2>
+
+      <input
+        className="search"
+        placeholder="Search"
+        type="text"
+        ref={searchInput}
+        onKeyUp={updateSearchTerm}
+      />
+      <ul>{renderEvents(events)}</ul>
+    </section>
+  );
+};
+
+EventList.propTypes = {
+  events: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.number,
+      event_type: PropTypes.string,
+      event_date: PropTypes.string,
+      title: PropTypes.string,
+      speaker: PropTypes.string,
+      host: PropTypes.string,
+      published: PropTypes.bool,
+    }),
+  ).isRequired,
+};
+
+export default EventList;
+```
+
++ `app/javascript/components/EventList.js`を編集<br>
+
+```js:EventList.js
+import React, { useRef, useState } from 'react';
+import PropTypes from 'prop-types';
+import { Link, NavLink } from 'react-router-dom';
+
+const EventList = ({ events }) => {
+  const [searchTerm, setSerarchTerm] = useState('');
+  const searchInput = useRef(null);
+
+  const updateSearchTerm = () => {
+    setSerarchTerm(searchInput.current.value);
+  };
+
+  // 追加
+  const matchSearchTerm = (obj) => {
+    const {
+      id, published, createdAt, updatedAt, ...rest
+    } = obj;
+    return Object.values(rest).some(
+      (value) => value.toLowerCase().indexOf(searchTerm.toLowerCase()) > -1,
+    );
+  };
+  // ここまで
+
+  const renderEvents = (eventArray) => eventArray
+    .filter((el) => matchSearchTerm(el))
+    .sort((a, b) => new Date(b.event_date) - new Date(a.event_date))
+    .map((event) => (
+      <li key={event.id}>
+        <NavLink to={`/events/${event.id}`}>
+          {event.event_date}
+          {' - '}
+          {event.event_type}
+        </NavLink>
+      </li>
+    ));
+
+  return (
+    <section className="eventList">
+      <h2>
+        Events
+        <Link to="/events/new">New Event</Link>
+      </h2>
+
+      <input
+        className="search"
+        placeholder="Search"
+        type="text"
+        ref={searchInput}
+        onKeyUp={updateSearchTerm}
+      />
+      <ul>{renderEvents(events)}</ul>
+    </section>
+  );
+};
+
+EventList.propTypes = {
+  events: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.number,
+      event_type: PropTypes.string,
+      event_date: PropTypes.string,
+      title: PropTypes.string,
+      speaker: PropTypes.string,
+      host: PropTypes.string,
+      published: PropTypes.bool,
+    }),
+  ).isRequired,
+};
+
+export default EventList;
+```
