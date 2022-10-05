@@ -1,3 +1,105 @@
+## 19. 404のコンポーネントを追加する
+
++ `$ touch app/javascript/components/EventNotFound.js`を実行<br>
+
++ `app/javascript/components/EventNotFound.js`を編集<br>
+
+```js:EventNotFound.js
+import React from 'react';
+
+const EventNotFound = () => (
+  <p>Event not found!</p>
+);
+
+export default EventNotFound;
+```
+
++ `app/javascript/components/Event.js`を編集<br>
+
+```js:Event.js
+import React from 'react';
+import { Link, useParams } from 'react-router-dom';
+import PropTypes from 'prop-types';
+import EventNotFound from './EventNotFound'; // 追加
+
+const Event = ({ events, onDelete }) => {
+  const { id } = useParams();
+  const event = events.find((e) => e.id === Number(id));
+
+  if (!event) return <EventNotFound />; // 追加
+
+  return (
+    <div className="eventContainer">
+      <h2>
+        {event.event_date}
+        {' - '}
+        {event.event_type}
+        <Link to={`/events/${event.id}/edit`}>Edit</Link>
+        <button
+          className="delete"
+          type="button"
+          onClick={() => onDelete(event.id)}
+        >
+          Delete
+        </button>
+      </h2>
+      <ul>
+        <li>
+          <strong>Type:</strong>
+          {' '}
+          {event.event_type}
+        </li>
+        <li>
+          <strong>Date:</strong>
+          {' '}
+          {event.event_date}
+        </li>
+        <li>
+          <strong>Title:</strong>
+          {' '}
+          {event.title}
+        </li>
+        <li>
+          <strong>Speaker:</strong>
+          {' '}
+          {event.speaker}
+        </li>
+        <li>
+          <strong>Host:</strong>
+          {' '}
+          {event.host}
+        </li>
+        <li>
+          <strong>Published:</strong>
+          {' '}
+          {event.published ? 'yes' : 'no'}
+        </li>
+      </ul>
+    </div>
+  );
+};
+
+Event.propTypes = {
+  events: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.number.isRequired,
+      event_type: PropTypes.string.isRequired,
+      event_date: PropTypes.string.isRequired,
+      title: PropTypes.string.isRequired,
+      speaker: PropTypes.string.isRequired,
+      host: PropTypes.string.isRequired,
+      published: PropTypes.bool.isRequired,
+    }),
+  ).isRequired,
+  onDelete: PropTypes.func.isRequired,
+};
+
+export default Event;
+```
+
++ `app/javascript/components/EventForm.js`を編集<br>
+
+```js:EventForm.js
 import React, {
   useCallback, useEffect, useRef, useState,
 } from 'react';
@@ -96,7 +198,7 @@ const EventForm = ({ events, onSave }) => {
   const cancelURL = event.id ? `events/${event.id}` : '/events';
   const title = event.id ? `${event.event_date} - ${event.event_type}` : 'New Event';
 
-  if (id && !event.id) return <EventNotFound />;
+  if (id && !event.id) return <EventNotFound />; // 追加
 
   return (
     <section>
@@ -207,3 +309,8 @@ EventForm.propTypes = {
 EventForm.defaultProps = {
   events: [],
 };
+```
+
++ http://localhost:3000/events/10 にアクセスしてみる<br>
+
+------------------- END ---------------------

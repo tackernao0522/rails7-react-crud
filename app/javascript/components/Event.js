@@ -1,10 +1,13 @@
 import React from 'react';
 import { Link, useParams } from 'react-router-dom';
 import PropTypes from 'prop-types';
+import EventNotFound from './EventNotFound';
 
 const Event = ({ events, onDelete }) => {
   const { id } = useParams();
   const event = events.find((e) => e.id === Number(id));
+
+  if (!event) return <EventNotFound />;
 
   return (
     <div className="eventContainer">
